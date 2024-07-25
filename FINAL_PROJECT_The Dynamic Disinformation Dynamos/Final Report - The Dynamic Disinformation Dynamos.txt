@@ -1,0 +1,1021 @@
+Social Media Analytics – Final Report
+
+Understanding Political Sentiment in Key Political Subreddits and Infiltrating the Political Communities
+
+
+
+
+ VS   Dark Brandon AKA Sleepy Joe                                                      The Donald AKA Cheeto Jesus
+
+
+
+
+
+
+
+By: The Dynamic Disinformation Dynamos (DDD)
+Ash Duong
+Jiechun Lei
+Rahul Nair
+
+4/29/2024
+Contents
+List of Figures	3
+List of Tables	3
+Problem Statement	4
+Problem	4
+Objectives and Goals	4
+Anticipated Challenges	4
+Significance and Relevance	5
+Analysis Methodology	5
+Data Collection	5
+Set Up	5
+Figures and Visualizations	5
+4. Text Embeddings	5
+6. Sentiment Analysis	7
+10. A/B Testing	9
+13. Engagement	13
+16. Reddit Field Testing Using AI	13
+Overall Analysis	18
+Key Findings and Results	18
+Broader Implications	18
+References	19
+Appendix	20
+Word Cloud in Liberal Subreddit	33
+Cluster Analysis in Liberal Subreddit	35
+Word Cloud in Moderate Subreddit	37
+Cluster Analysis in Moderate Subreddit	46
+Word Cloud in Conservative Subreddit	51
+Cluster Analysis in Conservative Subreddit	58
+Personas per Subreddit	62
+
+ 
+List of Figures
+Figure 1: Number of Comments per Post per Subreddit	6
+Figure 2: Average Sentiment Score Across Subreddits	7
+Figure 3: Sentiment Distribution by Comment Frequency in Liberal Subreddit	7
+Figure 4: Sentiment Distribution by Comment Frequency in Moderate Subreddit	8
+Figure 5: Sentiment Distribution by Comment Frequency in Conservative Subreddit	8
+Figure 6: Sentiment Distribution in Liberal Subreddit by Upvote Count	8
+Figure 7: Sentiment Distribution in Moderate Subreddit by Upvote Count	9
+Figure 8: Sentiment Distribution in Conservative Subreddit by Upvote Count	9
+Figure 9: Liberal Subreddit Keywords vs Total Upvotes	10
+Figure 10: Moderate Subreddit Keywords vs Total Upvotes	10
+Figure 11: Conservative Subreddit Keywords vs Total Upvotes	10
+Figure 12: Upvote Count vs Hour in Liberal Subreddit	11
+Figure 13: Upvote Count vs Hour in Moderate Subreddit	11
+Figure 14: Upvote Count vs Hour in Conservative Subreddit	12
+Figure 15: Upvote Count vs Day of Week in Liberal Subreddit	12
+Figure 16: Upvote Count vs Day of Week in Moderate Subreddit	12
+Figure 17: Upvote Count vs Day of Week in Conservative Subreddit	13
+Figure 18: Reddit Scraper Lite	20
+Figure 19: Reddit Scraper Light Crawl	20
+Figure 20: Reddit Scraper Excel Output – Post Example	21
+Figure 21: Similar Subreddits to r/conservative by User Overlap	21
+Figure 22: Similar Subreddits to r/moderatepolitics by User Overlap	22
+Figure 23: Similar Subreddits to r/liberal by User Overlap	22
+Figure 24: TSNE Visualization of Liberal Text Data	26
+Figure 25: TSNE Visualization of Moderate Text Data	26
+Figure 26: TSNE Visualization of Conservative Text Data	26
+Figure 27: Cluster Comments Using K-Means in Liberal Subreddit	27
+Figure 28: Cluster Comments Using K-Means in Moderate Subreddit	27
+Figure 29: Cluster Comments Using K-Means in Conservative Subreddit	27
+Figure 30: UMAP Embedding for Liberal Subreddit Colored by Sentiment	28
+Figure 31: UMAP Embedding for Moderate Subreddit Colored by Sentiment	28
+Figure 32: UMAP Embedding for Conservative Subreddit Colored by Sentiment	29
+Figure 33: Top 3 Comments with Extreme Sentiments Per Subreddit	30
+List of Tables
+Table 1: Subreddit Analysis	4
+Table 2: Reddit Posts Crawled	22
+ 
+Problem Statement
+Problem
+Reddit, one of the most popular social media platforms, faces significant challenges in combating the spread of disinformation and misinformation through bot accounts. These bots, which can automatically post content and comments, are increasingly being used to manipulate public opinion, polarize discussions, and undermine the integrity of online discourse.
+The impact of bot activity on Reddit discussions is particularly evident when examining content related to high-stakes topics such as COVID-19 and political elections. For instance, during the height of the pandemic, numerous bot accounts were identified spreading misinformation about the virus, its origins, and the efficacy of public health measures like masking and vaccination. Similarly, in the lead-up to the 2020 U.S. presidential election, researchers uncovered networks of bots amplifying partisan content, promoting conspiracy theories, and attempting to suppress voter turnout. These examples underscore the real-world consequences of bot-driven disinformation campaigns on Reddit, as they can shape public opinion, sow confusion, and undermine trust in key institutions.
+To address these challenges, it is crucial to develop a deeper understanding of how bots operate on Reddit and how their content and commenting patterns differ across political subreddits. By analyzing the top posts and comments in the conservative, moderate, and liberal subreddits, we can identify the linguistic and behavioral characteristics that distinguish bot-generated content from genuine user interactions.
+Objectives and Goals
+	As stated, we will analyze three different political subreddits below based on where they stand in their political affiliation. Further information can be seen in Table 1: Subreddit Analysis below. Please note that the subreddits chosen and the comments made on these accounts are in no way representative of our political views.
+Table 1: Subreddit Analysis
+Subreddit	Username
+/r/Conservative/
+https://www.reddit.com/user/libbytears0/
+
+/r/moderatepolitics/
+https://www.reddit.com/user/djhuh1391/
+
+/r/Liberal/
+https://www.reddit.com/user/Ok_Pomegranate2286/
+
+The goal of this analysis is to understand the different sentiments of each specific subreddit so that we can create three Reddit bots that respectively represents those sentiments. These bots will have the ability to comment on any topic within those respective subreddits and/or similar subreddits without being noticed or banned.
+Anticipated Challenges
+1.	Account detection and banning:
+•	Reddit has algorithms and moderators to detect and ban bot accounts.
+•	Certain subreddits, especially r/Conservative, are prone to ban people whose comments and views do not align with the subreddits’ mods and their views.
+2.	Karma and account age restrictions:
+•	Many subreddits have minimum karma and account age requirements to post or comment. Therefore, we will “roleplay” as a typical follower of that community by posting on related subreddits to accrue karma and avoid suspicions.
+3.	Data quality and representativeness:
+•	The posts and comments we analyze are not representative of the entire subreddit’s content, as we are focusing on selected top posts only. Therefore, we might have to adjust ChatGPT’s output on a case-by-case basis.
+4.	Technical challenges:
+•	Developing and deploying bot accounts using Reddit’s API and posting mechanisms require significant technical expertise and money. Therefore, we plan on posting comments and posts manually to avoid costs and any potential bans.
+
+Significance and Relevance
+Given the upcoming 2024 presidential election this fall between Joe Biden and Donald Trump, it is important for us to understand the content that we consume online, especially on social media sites such as Reddit, TikTok, Instagram, Facebook, etc. Although it may often seem that we are engaging with real people on the internet, this is often not the case and is increasingly becoming a problem in our society and in democracy. This project will give an insight into common bot behaviors on Reddit so that we can better understand Redditors in the future, especially for the 2024 presidential election and for understanding what propaganda by bots is and what is actually human.
+
+Analysis Methodology
+Data Collection
+	Given Reddit’s changes to their API, it is no longer free to scrape Reddit data. Therefore, there were two ways to collect the data. The first is by scraping the data using Python. However, this required complex coding that we were unable to implement. The second method is by using a paid third-party scraper like Apify. From Apify, there were lots of third-party reddit scrapers. We used Reddit Scraper Lite by Gustavo Rudiger to scrape the data as shown in Figure 18: Reddit Scraper Lite and Figure 19: Reddit Scraper Light Crawl.
+	The data that we used were taken from the top posts from the past year of each respective subreddit. We manually chose 10 posts based on certain topics and themes centered around US politics, and then took the top 100 comments per post as seen in Table 2: Reddit Posts Crawled. Each post scrapped outputted an excel file as seen in Figure 20: Reddit Scraper Excel Output – Post Example which includes key details such as the comment, number of replies, number of comments, number of upvotes, and the username.
+
+Set Up
+1.	Cloned Git Hub Repo.
+2.	Installed OpenAI and other necessary packages.
+3.	Set up OpenAI’s gpt-4 turbo API.
+4.	Loaded data and other helper functions.
+
+Figures and Visualizations
+4. Text Embeddings
+4.1. Cleaning the Data
+1.	Load the data into different data frames per Subreddit.
+2.	Remove [deleted] and [removed] comments from the data to clean it.
+3.	Remove unnecessary columns: category, flair, html, isAd, and over18.
+4.2. Plot Number of Comments per Post
+1.	Blue = Liberal, Conservative = Red, Moderate = Orange
+ 
+Figure 1: Number of Comments per Post per Subreddit
+
+4.3. Cleaning the Text Data
+1.	Remove punctuation and hyperlinks, and also make all the text lower case.
+4.4 Create TSNE Text Embeddings per Subreddit and Visualize Them
+1.	See in Appendix Figure 24: TSNE Visualization of Liberal Text Data
+2.	See in Appendix Figure 25: TSNE Visualization of Moderate Text Data
+3.	See in Appendix Figure 26: TSNE Visualization of Conservative Text Data
+4.5. Cluster Comments Using K-Means on Embeddings per Subreddit
+1.	See in Appendix Figure 27: Cluster Comments Using K-Means in Liberal Subreddit
+2.	See in Appendix Figure 28: Cluster Comments Using K-Means in Moderate Subreddit
+3.	See in Appendix Figure 29: Cluster Comments Using K-Means in Conservative Subreddit
+6. Sentiment Analysis
+6.1. Average Sentiment Per Comment per Post Per Subreddit
+1.	Conduct Sentiment Analysis with GPT
+o	0 = Conservative, 50 = Moderate, and 100 = Liberal
+2.	This data was saved into a new excel file containing a new column that has the sentiment for each comment across 30 posts.
+3.	We then plotted the average sentiment score across subreddits. See graph below.
+ 
+Figure 2: Average Sentiment Score Across Subreddits
+6.2. Sentiment Distribution per Subreddit by Comment Frequency
+ 
+Figure 3: Sentiment Distribution by Comment Frequency in Liberal Subreddit
+ 
+Figure 4: Sentiment Distribution by Comment Frequency in Moderate Subreddit
+ 
+Figure 5: Sentiment Distribution by Comment Frequency in Conservative Subreddit
+6.3. Sentiment Distribution per Subreddit by Upvote Count
+ 
+Figure 6: Sentiment Distribution in Liberal Subreddit by Upvote Count
+ 
+Figure 7: Sentiment Distribution in Moderate Subreddit by Upvote Count
+ 
+Figure 8: Sentiment Distribution in Conservative Subreddit by Upvote Count
+6.4. Look at Top 3 Comments with Extreme Sentiments per Subreddit
+1.	See Figure 33: Top 3 Comments with Extreme Sentiments Per Subreddit
+6.5 Scatter Plot of Transformer Comment Embeddings per Subreddit
+1.	See in Appendix Figure 30: UMAP Embedding for Liberal Subreddit Colored by Sentiment
+2.	See in Appendix Figure 31: UMAP Embedding for Moderate Subreddit Colored by Sentiment
+3.	See in Appendix Figure 32: UMAP Embedding for Conservative Subreddit Colored by Sentiment
+
+10. A/B Testing
+10.1. Add Keyword Indicator Column per Subreddit
+1.	Define a list of keywords, then add it to a column. This is then used for plotting below.
+10.2. Plot the Upvote Count vs Keyword per Subreddit
+ 
+Figure 9: Liberal Subreddit Keywords vs Total Upvotes
+ 
+Figure 10: Moderate Subreddit Keywords vs Total Upvotes
+ 
+Figure 11: Conservative Subreddit Keywords vs Total Upvotes
+10.3. Engagement per Subreddit
+1.	Set engagement = # Upvote count / # comments
+2.	Engagement Results:
+a.	Liberal Subreddit: 8.87
+b.	Moderate Subreddit: 30.76
+c.	Conservative Subreddit: 65.40
+10.4. Comment Time per Subreddit
+1.	Add day of week and hour columns.
+2.	Measure how the timing of a comment is related to its upvote count and sentiment for a subreddit.
+3.	This is used to plot the graphs below.
+10.5. Plot Upvotes vs Hour per Subreddit
+ 
+Figure 12: Upvote Count vs Hour in Liberal Subreddit
+ 
+Figure 13: Upvote Count vs Hour in Moderate Subreddit
+ 
+Figure 14: Upvote Count vs Hour in Conservative Subreddit
+10.6. Plot Upvotes vs Day per Subreddit
+ 
+Figure 15: Upvote Count vs Day of Week in Liberal Subreddit
+ 
+Figure 16: Upvote Count vs Day of Week in Moderate Subreddit
+ 
+Figure 17: Upvote Count vs Day of Week in Conservative Subreddit
+13. Engagement
+13.1. AI Word Cloud Analysis per Subreddit
+1.	See Appendix on Word Cloud in Liberal Subreddit
+2.	See Appendix on Word Cloud in Moderate Subreddit
+3.	See Appendix on Word Cloud in Conservative Subreddit
+13.2. AI Cluster Analysis per Subreddit
+1.	See Appendix on Cluster Analysis in Liberal Subreddit
+2.	See Appendix on Cluster Analysis in Moderate Subreddit
+3.	See Appendix on Cluster Analysis in Conservative Subreddit
+13.3. Based On All of Our Previous Analysis, Generate a Liberal, Moderate, and Conservative Persona
+1.	We took all the comments from the individual subreddits to create a persona for each respective subreddit.
+2.	This information will be used in the next section for creating comments.
+3.	See Personas per Subreddit
+
+16. Reddit Field Testing Using AI
+16.1. Post Comments on Adjacent Subreddits
+1.	Due to not meeting minimum karma requirements, we are unable to post on major political subreddits. Therefore, we posted in adjacent subreddits based on similar subreddits as seen in Figure 4: Similar Subreddits to r/conservative by User Overlap, Figure 5: Similar Subreddits to r/moderatepolitics by User Overlap, and Figure 6: Similar Subreddits to r/liberal by User Overlap.
+2.	For the liberal account, we posted on r/TheRightCantMeme. For the moderate account, we posted on r/Libertarian. For the conservative account, we posted on r/Republican. 
+3.	Each comment that we generated was based on the personals generated of each individual subreddit. For example, the comments posted on r/TheRightCantMeme was based on the “Liberal” persona. Additionally, the image description from memes in the posts were generated by Chat-GPT and incorporated for the comment generation.
+16.2 Find 3 Trending Posts on Each Subreddit
+1.	r/TheRightCantMeme
+a.	https://www.reddit.com/r/TheRightCantMeme/comments/1cf5zro/i_think_that_this_is_a_problem_of_capitalism/
+i.	Post Title: I think that this is a problem of capitalism rather than the woke leftists as you claim in the comments.
+ii.	 
+b.	https://www.reddit.com/r/TheRightCantMeme/comments/1cev7ho/oh_my_god/
+i.	Post Title: oh my god😭😭
+ii.	 
+c.	https://www.reddit.com/r/TheRightCantMeme/comments/1cepcww/free_healthcare_for_illegal_immigrants/
+i.	Post Title: Free healthcare for illegal immigrants
+ii.	 
+2.	r/Libertarian
+a.	https://www.reddit.com/r/Libertarian/comments/1cer1py/i_thought_there_was_a_war_going_on/
+i.	Post Title: I thought there was a war going on?
+ii.	 
+b.	https://www.reddit.com/r/Libertarian/comments/1cee78v/why_swedish_people_need_reeducation/
+i.	Post Titles: Why Swedish people need reeducation
+c.	https://www.reddit.com/r/Libertarian/comments/1cee4nm/why_the_us_debt_is_unsustainable_and_is/
+i.	Post Titles: Why the US Debt Is Unsustainable and Is Destroying the Middle Class
+3.	r/Republican
+a.	https://www.reddit.com/r/Republican/comments/1cepbzw/kristi_noem_defends_her_account_of_killing_own/
+i.	Post Title: Kristi Noem defends her account of killing own dog in new book
+b.	https://www.reddit.com/r/Republican/comments/1cevfka/louisiana_judge_sentences_man_to_physical/
+i.	Post Title: Louisiana Judge Sentences Man to Physical Castration For Raping Teenage Girl
+c.	https://www.reddit.com/r/Republican/comments/1cdwj0d/president_joe_biden_says_hes_happy_to_debate/
+i.	Post Title: President Joe Biden says he’s ‘happy to debate’ Donald Trump. Trump says he’s ready to go
+16.3 Find Top Comment on Each Post
+1.	r/TheRightCantMeme
+a.	https://www.reddit.com/r/TheRightCantMeme/comments/1cf5zro/comment/l1mzbk8/
+i.	“Detroit just hosted the NFL Draft, show those pictures, not a 30 year old shot of the Packard plant which was already partially torn down, FFS!”
+b.	https://www.reddit.com/r/TheRightCantMeme/comments/1cev7ho/comment/l1l4lve
+i.	“So they want to demand wages be high enough for a single breadwinner to support an entire family? I'd get behind that.”
+c.	https://www.reddit.com/r/TheRightCantMeme/comments/1cepcww/comment/l1k0ymj/
+i.	“It’s sad these people just have an inherently incorrect worldview spoon fed to them”
+2.	r/Libertarian
+a.	https://www.reddit.com/r/Libertarian/comments/1cer1py/comment/l1l10gx/
+i.	“You are a dipshit if you believe that’s what they’re spending money on rn lol”
+b.	https://www.reddit.com/r/Libertarian/comments/1cee78v/comment/l1i850z
+i.	“At least they get something for what the government takes from them. All we get from our stolen money is drone strikes on children's hospitals.”
+c.	https://www.reddit.com/r/Libertarian/comments/1cee4nm/comment/l1jm8wm/
+i.	“It's only "sustainable" if the GDP continues to predictably rise. Considering there are many factors that will inhibit that, it will eventually burst. The government will be forced to shrink. As a libertarian, I am excited for that day.”
+3.	r/Republican
+a.	https://www.reddit.com/r/Republican/comments/1cepbzw/comment/l1kb2tn/
+i.	“So on the one hand this kind of thing happens on farms unfortunately because if the specific animal threatens the other livestock it can affect the business. I get that.  On the other hand why would you put that in an autobiography when you are vying for VP? Yikes”
+b.	https://www.reddit.com/r/Republican/comments/1cevfka/comment/l1laqn3/
+i.	“Ehh, I think the judge may have gone too far for this one. I'd be more OK with the death penalty than forced castration. The cruel and unusual punishment clause is a thing, and the constitution should be respected.”
+c.	https://www.reddit.com/r/Republican/comments/1cdwj0d/comment/l1f37tm
+i.	“I'd pay good money to see Biden in a debate at this point.  The sheer amount of drugs they will have to pump into him to even keep him conscious will probably end him.”
+16.4 Have Chat-GPT Generate an Automatic Response Based on the Top Comment of Each Post using the individual Chat-GPT Personalities for Each Subreddit and Post Them
+1.	r/TheRightCantMeme
+a.	Totally with you on this one. The comparison feels like a major cherry-pick to push a narrative. Detroit's got its issues but using outdated images to make a point does a disservice to the people working hard to revitalize the city. Let's give credit where it's due, yeah?
+b.	Lol, yeah, and the catch is making it universal, not just a selective '50s sitcom dream. It's amusing how these ideals align with what many progressives advocate for—fair wages, equality. Funny how things come full circle when you strip down the rhetoric.
+c.	Totally relate to this. It’s a narrative spun so tight that it leaves no room for actual facts. People sacrificing their own well-being out of a misplaced sense of pride or principle... Kinda heartbreaking. 
+2.	r/Libertarian
+a.	LOL, imagine thinking every dollar is just being poured into partying. It's good to see some positive vibes with all the heavy stuff happening, but let's not twist what the aid's really for.
+b.	Yeah, the comparison is pretty stark when you think about it. We're over here debating the necessity of our taxes, while in some places, they actually see the benefits in their daily lives. Makes you wonder.
+c.	Definitely see where you're coming from. The whole "it'll keep going up" mindset seems so risky with how things are going. Can't just keep betting on GDP growth to bail us out forever.
+3.	r/Republican
+a.	Yeah, I'm all for doing what's necessary on a farm, but putting this in a book when eyeing a larger political role? Not the smartest move. It's one thing to make tough calls, another to broadcast it like a badge of honor. Yikes indeed.
+b.	Yeah, gotta say the judge's ruling sounds a bit medieval to me. The constitution’s not just a suggestion book. Besides, if we start bending on cruel and unusual, where do we draw the line? 
+c.	Honestly, the SOTU felt more like a sci-fi show than a political address. Wouldn't surprise me if they had a team offstage ready with a med kit and a power bank for Biden. 
+Overall Analysis
+Key Findings and Results
+Subreddit Size and Engagement: The conservative subreddit emerged as the largest among the three analyzed, boasting the highest number of subscribers, comments, and upvotes. This finding suggests that despite Reddit's overall liberal leaning, conservatives actively seek out and engage in dedicated subreddits that serve as their safe spaces for political discussions. Notably, the engagement per subreddit, measured by the ratio of upvote count to the number of comments per post, was highest in the conservative subreddit, surpassing the liberal subreddit by a factor of 8. This indicates a more tight-knit and active user base within the conservative community.
+Sentiment Analysis: The sentiment analysis, conducted with a scale of 0 (conservative), 50 (moderate), and 100 (liberal), revealed intriguing patterns across the subreddits. Surprisingly, all three subreddits exhibited a high frequency of sentiment scores around the neutral value of 50. However, the average sentiment scores aligned with the expected political leanings: the liberal subreddit had the highest average (45-60), followed by the moderate and conservative subreddits. The sentiment distributions further confirmed these tendencies, with the liberal subreddit skewing towards higher scores, the conservative subreddit towards lower scores, and the moderate subreddit falling in between. Interestingly, when examining sentiment distribution by upvote count, all subreddits showed a concentration of highly upvoted comments in the 80-100 range, suggesting that positively charged content resonates across political spectrums.
+Keyword Analysis: The keyword analysis highlighted the prominence of certain topics and figures within each subreddit. "Trump" emerged as the most prevalent keyword in both the liberal and moderate subreddits, indicating a strong focus on the former president. Conversely, the conservative subreddit was dominated by keywords like "evidence" and "jury," suggesting a greater emphasis on legal and evidentiary aspects of political discussions. These keyword variations shed light on the distinct priorities and framing employed by each community.
+Engagement Patterns: The analysis of upvote count versus posting time revealed optimal engagement windows for each subreddit. Liberal subreddit posts garnered the highest upvotes when made at 10 am and 12 pm, while the moderate subreddit peaked at 10 am and 3 pm. In contrast, the conservative subreddit saw maximum engagement for posts created at 3 pm and 6 pm. Additionally, the day of the week played a role, with Monday being the most engaging for the liberal subreddit, Wednesday for the moderate, and Tuesday for the conservative. However, these patterns could be influenced by the nature and timing of specific posts and breaking news, warranting further analysis to establish definitive trends. There is also a spike in upvotes at 2 am in only the moderate and conservative subreddit, but not the liberal one.
+Overall, the relative ease with which we were able to conduct this analysis and generate persona-based comments raises concerns about the ease of misuse of such techniques by malicious actors such as foreign governments, agencies, companies, bad actors, etc.
+Broader Implications
+The findings of this study have important implications for understanding and combating the spread of disinformation on social media platforms like Reddit. By identifying the distinctive linguistic and behavioral patterns of bot accounts across different political subreddits, this research provides valuable insights for developers seeking to create more effective bot detection algorithms. Platform administrators and moderators can leverage these insights to better identify and remove malicious bot accounts, helping to curb the spread of false or misleading information.  
+References
+•	https://www.reddit.com/user/tyrannosnorlax/comments/t0h466/bots_how_to_identify_them_and_why_do_they_exist/
+•	https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8139392/
+•	https://dl.acm.org/doi/pdf/10.1145/3313294.3313386
+•	https://brightdata.com/blog/web-data/how-to-scrape-reddit-python
+•	https://blog.apify.com/how-to-scrape-reddit/
+•	https://console.apify.com/actors/oAuCIx3ItNrs2okjQ/console
+ 
+Appendix
+ 
+Figure 18: Reddit Scraper Lite
+
+ 
+Figure 19: Reddit Scraper Light Crawl
+ 
+Figure 20: Reddit Scraper Excel Output – Post Example
+ 
+Figure 21: Similar Subreddits to r/conservative by User Overlap
+ 
+Figure 22: Similar Subreddits to r/moderatepolitics by User Overlap
+ 
+Figure 23: Similar Subreddits to r/liberal by User Overlap
+Table 2: Reddit Posts Crawled
+Subreddit	Topic	Title	Link
+Conservative	Legal	Trump found liable of sexual abuse, defamation in E. Jean Carroll case, ordered to pay $5M in damages	https://www.reddit.com/r/Conservative/comments/13d2zn7/trump_found_liable_of_sexual_abuse_defamation_in/
+
+Conservative	Indictment	Trump Classified Documents Indictment Made Public	https://www.reddit.com/r/Conservative/comments/145clqw/trump_classified_documents_indictment_made_public/
+
+Conservative	Indictment	Former President Trump says he has been indicted	https://www.reddit.com/r/Conservative/comments/144p4gr/former_president_trump_says_he_has_been_indicted/
+
+Conservative	Media	CNN is insane 😳, community notes is such a good feature.	https://www.reddit.com/r/Conservative/comments/1656yqu/cnn_is_insane_community_notes_is_such_a_good/
+
+Conservative	General Hate	The is the future if we don't fight with more memes.	https://www.reddit.com/r/Conservative/comments/147yyud/the_is_the_future_if_we_dont_fight_with_more_memes/
+
+Conservative	Joe Biden	Joe Biden and his Secret Service trick or treat yesterday. These kids nailed it!	https://www.reddit.com/r/Conservative/comments/17lcmny/joe_biden_and_his_secret_service_trick_or_treat/
+
+Conservative	Candidates	Both parties have a major age problem	https://www.reddit.com/r/Conservative/comments/166pkkv/both_parties_have_a_major_age_problem/
+
+Conservative	Election	If the GOP can’t figure out how to beat old Joe, they’re useless	https://www.reddit.com/r/Conservative/comments/130mwr6/if_the_gop_cant_figure_out_how_to_beat_old_joe/
+
+Conservative	Indictment	Donald Trump does not have presidential immunity, US court rules	https://www.reddit.com/r/Conservative/comments/1akcezl/donald_trump_does_not_have_presidential_immunity/
+
+Conservative	Election	Looks like we'll need to wait to see that report…	https://www.reddit.com/r/Conservative/comments/15u4gqg/looks_like_well_need_to_wait_to_see_that_report/
+
+Moderate	Indictment	Rudy Giuliani said he and Trump were selling pardons for $2m apiece, ex-aide claims	https://www.reddit.com/r/moderatepolitics/comments/13j7m0g/rudy_giuliani_said_he_and_trump_were_selling/
+
+Moderate	Joe Biden	Biden causes confusion after signing off speech with ‘God Save the Queen’	https://www.reddit.com/r/moderatepolitics/comments/14cqpfi/biden_causes_confusion_after_signing_off_speech/
+
+Moderate	Joe Biden	Biden says rich must 'pay their share' at first reelection campaign rally	https://www.reddit.com/r/moderatepolitics/comments/14e9ngq/biden_says_rich_must_pay_their_share_at_first/
+
+Moderate	Election	Biden is 'old,' Trump is 'corrupt': AP-NORC poll has ominous signs for both in possible 2024 rematch	https://www.reddit.com/r/moderatepolitics/comments/165gedg/biden_is_old_trump_is_corrupt_apnorc_poll_has/
+
+Moderate	Trump	Pence says he ‘cannot in good conscience’ endorse Trump	https://www.reddit.com/r/moderatepolitics/comments/1bfoju7/pence_says_he_cannot_in_good_conscience_endorse/
+
+Moderate	Trump	Exclusive: Donald Trump admits on tape he didn’t declassify ‘secret information’	https://www.reddit.com/r/moderatepolitics/comments/14549mc/exclusive_donald_trump_admits_on_tape_he_didnt/
+
+Moderate	General Hate	Republicans Finally Admit They Have No Incriminating Evidence on Joe Biden	https://www.reddit.com/r/moderatepolitics/comments/13e3aap/republicans_finally_admit_they_have_no/
+
+Moderate	General Hate	RFK Jr. says COVID was 'ethnically targeted' to spare Jews	https://www.reddit.com/r/moderatepolitics/comments/150dflp/rfk_jr_says_covid_was_ethnically_targeted_to/
+
+Moderate	General Hate	Ron DeSantis says he will ‘destroy leftism’ in US if elected president	https://www.reddit.com/r/moderatepolitics/comments/13xa17n/ron_desantis_says_he_will_destroy_leftism_in_us/
+
+Moderate	Indictment	Prosecutors ready to ask for Trump indictment on obstruction and Espionage Act charges | The Independent	https://www.reddit.com/r/moderatepolitics/comments/143n58m/prosecutors_ready_to_ask_for_trump_indictment_on/
+
+Liberal	Joe Biden	Liberals, Start Giving Biden Some Damn Credit	https://www.reddit.com/r/Liberal/comments/17kxsp6/liberals_start_giving_biden_some_damn_credit/
+
+Liberal	Election	It's either Biden or Fascism. Vote Blue!	https://www.reddit.com/r/Liberal/comments/17esar2/its_either_biden_or_fascism_vote_blue/
+
+Liberal	Joe Biden	When people complain about the economy under Biden, tell them the following....	https://www.reddit.com/r/Liberal/comments/191px7d/when_people_complain_about_the_economy_under/
+
+Liberal	Election	Why the hell is warning people that they have the power to stop Trump by voting blue so controversial?	https://www.reddit.com/r/Liberal/comments/18d2cq9/why_the_hell_is_warning_people_that_they_have_the/
+
+Liberal	Joe Biden	Biden, 80, makes 2024 presidential run official: 'Let's finish this job'	https://www.reddit.com/r/Liberal/comments/12yomgl/biden_80_makes_2024_presidential_run_official/
+
+Liberal	Election	White Rural Trump Supporters Are a Threat to Democracy	https://www.reddit.com/r/Liberal/comments/1b4sr4o/white_rural_trump_supporters_are_a_threat_to/
+
+Liberal	Election	Do you believe a Trump victory this year has strong potential to end our democracy?	https://www.reddit.com/r/Liberal/comments/1bndtnv/do_you_believe_a_trump_victory_this_year_has/
+
+Liberal	General Hate	What is happening to America.	https://www.reddit.com/r/Liberal/comments/15q79ev/what_is_happening_to_america/
+
+Liberal	General Hate	voting for trump in the upcoming election is treason.	https://www.reddit.com/r/Liberal/comments/1876rrn/voting_for_trump_in_the_upcoming_election_is/
+
+Liberal	Trump	Donald Trump Is Going to Get Someone Killed	https://www.reddit.com/r/Liberal/comments/17bkazl/donald_trump_is_going_to_get_someone_killed/
+
+ 
+ 
+Figure 24: TSNE Visualization of Liberal Text Data
+ 
+Figure 25: TSNE Visualization of Moderate Text Data
+ 
+Figure 26: TSNE Visualization of Conservative Text Data
+ 
+ 
+Figure 27: Cluster Comments Using K-Means in Liberal Subreddit
+ 
+Figure 28: Cluster Comments Using K-Means in Moderate Subreddit
+ 
+Figure 29: Cluster Comments Using K-Means in Conservative Subreddit
+
+ 
+Figure 30: UMAP Embedding for Liberal Subreddit Colored by Sentiment
+ 
+Figure 31: UMAP Embedding for Moderate Subreddit Colored by Sentiment
+ 
+Figure 32: UMAP Embedding for Conservative Subreddit Colored by Sentiment
+
+ 
+Figure 33: Top 3 Comments with Extreme Sentiments Per Subreddit
+Subreddit: Conservative
+Most positive posts in the subreddit:
+	Username: MoodApart4755
+	Sentiment: 100.00
+	Text: 100% agree, wish more people thought this way these days
+
+	Username: gainz74
+	Sentiment: 95.00
+	Text: Lol exactly, imagine being one of these freaks and meeting Mao or Stalin, thinking they'll be happy for your support. They'd be the first to go
+
+	Username: [deleted]
+	Sentiment: 95.00
+	Text: "Point of personal privilege comrade, I am triggered by the thought of work. It is an unseen disability I &amp; many others here struggle with on a daily basis. Raising it is an act of oppression &amp; violence towards us. As a point of order, I would ask through the chair that the words 'work' &amp;' job' be added to the conference designated hate speech list"
+
+Most negative posts in the subreddit:
+	Username: FunnyDatabase2697
+	Sentiment: 5.00
+	Text: They don’t lol that is what the nanny state is there for. *in whining tone” Please be responsible without any personal accountability, it triggering to my anxiety and my life and I just can’t handle the sensory overload that’s dealing with my issues does to mamakrdjdj (brain breaks)”  these people are a fucking joke
+
+	Username: Zealousideal_Ad_4118
+	Sentiment: 5.00
+	Text: I was the official HR department for the workshop I used to work on and keeping the sexual harassment under control was killer. So, naturally, I decided to sexually harass them until they stopped. They liked it.
+
+	Username: mrawsome197
+	Sentiment: 5.00
+	Text: Even with the missing piece(s) he is still clearly saying that he 
+1. Had not declassified it.
+2. Knew that it was classified.
+
+Subreddit: Liberal
+Most positive posts in the subreddit:
+	Username: sayzitlikeitis
+	Sentiment: 100.00
+	Text: But have you seen how horrible the Republicans are?
+
+	Username: DarthAcrimonious
+	Sentiment: 100.00
+	Text: Conservatives will never give Biden credit for fully funding the genocide in Palestine.
+
+	Username: CountrySax
+	Sentiment: 100.00
+	Text: He already has.Hes a cancer on America
+
+Most negative posts in the subreddit:
+	Username: Claque-2
+	Sentiment: 5.00
+	Text: Conservatives, foreign agents and people who don't know how government really works (like people who flunk their GED three times)
+
+	Username: Joseph4276
+	Sentiment: 5.00
+	Text: Why he’s literally the worst president in history an astounding 22% approval rating I still can’t figure out how everyone in the country with the exception of media moguls and big pharma is so worse off then they were during the Trump administration ♂️
+
+	Username: kathy11358
+	Sentiment: 5.00
+	Text: Exactly. Food prices are astronomical. I honestly don’t know how people with children can afford to feed them.
+
+
+Subreddit: Moderate
+Most positive posts in the subreddit:
+	Username: SFepicure
+	Sentiment: 95.00
+	Text: It gets worse - if that is possible - when you understand how Rudy was thinking about it,
+
+&gt; Giuliani became drunk, and fantasized about
+visiting a hotel with Ms. Dunphy, bizarrely saying during a recorded conversation that he would tell the doorman to wait outside with the luggage so that “we do it on the floor in the living room...we don’t even make it to the bedroom. All the clothes come off,” and telling the doorman, **“I need time alone with my girlfriend, with my daughter. With my little girl.” This became part of a pattern in which Giuliani referenced Ms. Dunphy as his “daughter” in the context of sexual activity** and made her extremely uncomfortable.
+
+	Username: [deleted]
+	Sentiment: 95.00
+	Text: He wants to crush the upper middle class with more taxes on their income while the extremely wealthy who make most of their money through other means get even richer.
+
+	Username: Cosmopolitan-Dude
+	Sentiment: 95.00
+	Text: I legit get headaches if I listen to Trump uninterrupted for 10 minutes. It's just a word salad of nonsense.
+
+Most negative posts in the subreddit:
+	Username: [deleted]
+	Sentiment: 0.00
+	Text: Ewwwwwwww
+
+	Username: averageuhbear
+	Sentiment: 5.00
+	Text: And yet some of the younger contenders are somehow worse.
+
+	Username: SpoonTomb
+	Sentiment: 5.00
+	Text: Okay, sure, but “god save the queen, man” is so blatantly out of touch to the degree it’s like does he even know where he is in space and time? What could possibly have prompted that sign off other than some sort of sign of dementia? This sort of apologetic reasoning that requires both the caveat of “yes I personally think maybe he’s a *bit* too old” and the deflection of “but trump” while likening Biden to maybe a cute older relative we all can relate to that says silly things, is getting stale. Biden’s only sympathetic quality is that he is a broken old man who’s being pushed to carry on by those around him for whatever reasons they might have. Other than that he’s been just another establishment politician who’s had questionable policies and motivations to put it exceedingly lightly. How is American politics not looked at as obviously a circus at this point?
+ 
+Word Cloud in Liberal Subreddit
+ 
+
+ 
+ 
+ 
+Cluster Analysis in Liberal Subreddit
+Cluster 0
+1. Concerns over the threat of Trump running for President again and potentially ending democracy.
+2. Discussing Trump's actions during his presidency and the potential impact of him being in power again.
+3. Reference to "Project 2025" and concerns about Trump's intentions and potential authoritarianism.
+4. Criticism of the lack of accountability for Trump's actions and potential dangers of his return to power.
+5. Discussion of how Trump has already caused harm, such as through the pandemic and the Capitol insurrection.
+
+
+Cluster 2
+1. Concerns about far-left and centrist voters not realizing the danger of Trump winning in swing states.
+2. Criticism and frustration towards Trump supporters, particularly those who are rural, white, and conservative.
+3. Disdain for Republicans and Trump supporters for their views and misinformation.
+4. Discussion on the role of religion and media in influencing political beliefs.
+5. Calls for more effective messaging and engagement with voters from different perspectives.
+6. Critiques of the influence of social media, misinformation, and conspiracy theories on political discourse.
+7. Emphasis on the importance of voting, especially in preventing a Trump re-election.
+8. Concern about the future of democracy and the potential consequences of authoritarianism in politics.
+9. Discussion of behaviors and influences that may shape political beliefs, including psychological, social, and cultural factors.
+
+
+Cluster 1
+1. Support for Joe Biden as the Democratic candidate despite criticisms, especially in comparison to Republican alternatives.
+2. Emphasis on the importance of voter turnout in elections.
+3. Acknowledgment of economic challenges faced by Americans, despite positive national economic statistics.
+4. Concerns about Biden's age and discussions around potential successors.
+5. Criticism of media coverage and focus on negative news rather than Biden's accomplishments.
+6. Discussion on the impact of inflation, rising costs, and personal financial struggles.
+7. Comparison of Biden's policies and achievements with past presidents, particularly in response to crises and international affairs.
+8. Commentary on voting strategically to prevent undesirable outcomes.
+9. Desire for political change and involvement at all levels, beyond just the presidential election.
+10. Critique of partisanship and lack of support for third-party candidates.
+11. Conversations around progressive policies, generational change, and the need for long-term planning.
+12. Mixed feelings and fatigue with the political landscape, coupled with the understanding of the necessity of participation.
+13. Reflections on the complexities of international conflicts and the role of the U.S. in global affairs.
+14. Division within liberal circles regarding Biden's performance and decision-making, with focus on policies over personality.
+15. Speculation on future elections, candidates, and the role of age and experience in leadership.
+
+
+ 
+Word Cloud in Moderate Subreddit
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Cluster Analysis in Moderate Subreddit
+Cluster 1
+1. Discussion and analysis of former President Trump being indicted for classified documents and sharing them improperly.
+2. Speculation on legal implications and strategies related to the indictment.
+3. Mention of lawyers resigning and potential consequences for Trump.
+4. Reference to audio recordings and transcripts related to the indictment.
+5. Comparison to other legal cases and implications for Trump's defense.
+6. Skepticism and analysis of Trump's potential evidence or actions in response to the indictment.
+
+
+Cluster 15
+1. Criticism and mockery of Joe Biden's physical stumbles and gaffes.
+2. Reference to the delay in releasing certain information, specifically related to the "kraken" claims.
+3. Discussion about Ben Shapiro being wrong and cultural versus political analysis.
+4. Debate over Joe Biden's stuttering issues and the lack of evidence of it.
+5. Historical references to Joe Biden's past and comparisons to older technologies.
+6. Expressions of skepticism and doubt towards Joe Biden's abilities.
+7. Requests for more information and sources to support claims made about Joe Biden.
+
+
+Cluster 11
+1. Holding politicians, including Trump, accountable for potential crimes related to classified information.
+2. Concerns about the legal system being manipulated for political purposes.
+3. Calls for equal application of the law regardless of political affiliation.
+4. Doubts about the fairness of potential prosecutions targeting Trump compared to other politicians.
+5. Skepticism about the motives behind legal actions against Trump by Democrats.
+6. Frustration with perceived double standards in the legal system based on political party.
+
+
+Cluster 7
+1. Arguing against immunity for presidents, stating that they should be held accountable for criminal conduct.
+2. Comparing the presidency to a king and highlighting the need for checks and balances.
+3. Discussing the declassification process for documents and how it relates to presidential actions.
+4. Mentioning past actions of Obama and Clinton in relation to classified information.
+5. Questioning the precedent and potential consequences of prosecuting former presidents.
+6. Highlighting the impeachment process and implications for criminal prosecution of former presidents.
+7. Criticizing the potential politicization of criminal cases against presidents.
+8. Recognizing the power and limitations of the presidency in handling classified information.
+
+
+Cluster 10
+1. Preference for Ron DeSantis over Donald Trump in the 2024 election.
+2. Criticism of Trump's electability and potential impact on the Republican Party.
+3. Discussion of DeSantis' viability as a candidate in comparison to Trump.
+4. Concerns about Trump's potential response if he loses and implications for the Republican Party.
+5. Mention of DeSantis' qualities and electability compared to Trump.
+6. Comparison of trump and potential impact on the 2024 election.
+7. Speculation about future Republican candidates other than Trump.
+8. Discussion on the possible influence of smear campaigns against both Trump and DeSantis.
+9. Criticism of the Republican nomination process and potential contenders.
+10. Consideration of Trump's base and political realities.
+11. Analysis of polling data regarding DeSantis and Trump.
+12. Statements suggesting broader political implications and strategy.
+13. Comments on potential Democratic opposition and voter sentiment.
+14. Speculation on DeSantis' chances in the election against Trump.
+15. Preference for DeSantis over Jeb Bush.
+16. Discussion on Trump's age, electability, and potential impact.
+17. Response to Reddit conservatives' views on Trump and 2024 election.
+18. Criticism of Trump's supporters and impact on upcoming elections.
+19. Mention of primaries and the impact on conservative candidates.
+20. Response to attacks on DeSantis and influence on support.
+21. Analysis of DeSantis' appeal and Trump's unique qualities.
+22. Discussion on Trump's election performance and narrative around his electability.
+23. Support for DeSantis and encouragement to vote against Trump.
+24. Comparison of polls showing Trump and DeSantis' performance.
+25. Individual preference for Trump over DeSantis.
+26. Support for Vivek as an alternative candidate.
+27. Recommendations to vote for Vivek rather than DeSantis, or due to low chances.
+28. Consideration of DeSantis over Trump personally.
+
+
+Cluster 6
+1. Ridiculing a group of people with leftist or socialist ideologies.
+2. Mocking the concept of pronouns and trigger warnings.
+3. Criticizing the idea of not wanting to work or the "anti-work" mentality.
+4. Dismissing socialist or communist ideologies.
+5. Making fun of DEI (Diversity, Equity, and Inclusion) initiatives and professionals.
+6. Questioning the practicality of extreme leftist views.
+7. Deriding individuals with certain neurodevelopmental disorders or disabilities.
+8. Suggesting that those with certain ideologies or beliefs are hypocritical or lazy.
+
+
+Cluster 5
+1. Mocking and criticizing behavior perceived as overly sensitive or victimhood.
+2. Satirical or humorous reactions to certain situations or behaviors.
+3. Commentary on perceived hypocrisy or absurdity in certain groups or events.
+4. Criticism of linguistic changes and communication breakdowns, particularly related to political correctness.
+5. Appreciation for insightful or humorous comments made by others.
+6. Expressing frustration with lack of accountability or perceived irrationality in certain situations.
+
+
+Cluster 13
+1. Discussion of different standards of proof in civil and criminal cases.
+2. Criticism of legislators not reading bills before voting on them.
+3. Criticism of the legal system allowing for lawsuits without concrete evidence.
+4. Criticism of the handling of witness testimony and defense strategies in certain cases.
+
+
+Cluster 12
+1. Criticism of Trump's behavior and impact on the country.
+2. Concerns about Trump's age and mental state.
+3. Calls for Trump to step down and allow someone else to lead.
+4. Critique of the political system and the need for better leaders.
+5. Discussion of age and competence in politics.
+6. Comparison between Trump and other politicians in terms of age and performance.
+
+
+Cluster 3
+1. Critiques of current Republican Party leadership and platform
+2. Desire for alternative candidates within the Republican Party
+3. Frustration with the mainstream options presented by both parties
+4. Discussions on potential candidates like Tulsi Gabbard as alternatives
+5. Concerns about age and out-of-touch leadership in politics
+6. Views on voting for the "lesser of two evils" in elections
+7. Calls for more moderate, reasonable candidates in politics
+
+
+Cluster 8
+1. Criticizing mainstream media outlets for omitting important context in their reporting.
+2. Expressing frustration with biased and misleading headlines.
+3. Comparing different news sources and discussing their levels of accuracy and bias.
+4. Mentioning specific incidents or individuals related to news reporting.
+5. Discussing the division caused by mainstream media outlets and personal biases in reporting.
+
+
+Cluster 4
+1. Discussion of the misconception and outrage regarding the association of the LGBT community with rapists.
+2. Criticism of laws and headlines that target homosexuality and rape without proper distinction.
+3. Clarification on legal terminologies and distinctions between aggravated homosexuality and rape offenses.
+4. Concerns about how laws may be misinterpreted or misapplied to target consenting adults within the LGBT community.
+5. Highlighting the need for accurate reporting and understanding of legal nuances in cases involving sexual offenses and disabilities.
+
+
+Cluster 0
+1. Criticizing r/politics users for brigading and spreading their influence into conservative subreddits.
+2. Expressing frustration with downvotes and potential brigading from left-leaning users.
+3. Appreciation for moderators cleaning up conservative subreddits.
+4. References to the lack of diversity in opinions on left-leaning subreddits like r/politics.
+5. Use of flaired users to limit certain comments.
+6. Showing support for conservative ideals and values in the face of opposition from left-leaning users.
+7. Encouraging reporting of brigading behavior and observing success in getting users banned.
+8. Mention of Reddit politics and dynamics surrounding bans, censorship, and opposing views.
+
+
+Cluster 16
+1. Criticism of the Republican Party and its veering off course
+2. Discussion on the tone-setting by the loudest voices in political discourse
+3. Concerns about the interwoven nature of religion and politics
+4. Critique of extreme viewpoints in political discussions
+5. Criticism of fundraising tactics and confidence in statements made
+6. Expressing disappointment in lack of retirement preparation
+7. Reference to the ongoing culture wars and erosion of traditional values
+
+
+Cluster 2
+1. Concern about children being influenced or indoctrinated by their parents' political beliefs at a young age.
+2. Discussion on the appropriateness of children dressing up as political figures or making political statements.
+3. Emphasis on raising children to be critical thinkers and independent rather than pushing specific beliefs on them.
+4. Recognition of the prevalence of political awareness among teenagers.
+5. Mention of children's access to information and memes influencing their behaviors and choices.
+6. Disagreement with the idea that children can develop their own political viewpoints independently from external influences.
+7. Commentary on the reaction of Reddit users to a specific clip involving children dressed up in a political theme.
+8. Acknowledgement of the impact of societal influences on children's worldview.
+9. Reference to personal experiences with politics during childhood and the lack of parental influence.
+10. Observations on the role of children in politics and the evolving nature of political awareness among younger generations.
+
+
+Cluster 14
+1. Criticisms and mockery of Joe Biden's behavior, specifically regarding sniffing and inappropriate actions towards children
+2. Disdain for perceived hypocrisy or selective ignorance from those who defend Biden
+3. Commentary on the appearance or actions of individuals, including mocking voices and costumes
+4. Disapproval of political ideologies or actions
+5. Personal anecdotes or experiences related to children's reactions to political figures
+6. Dismissive or sarcastic responses to certain behaviors or statements
+
+
+Cluster 9
+1. Discussion on the influence and control of BlackRock and Vanguard due to their significant holdings in various companies.
+2. Clarification on the difference between mutual funds and private ownership.
+3. Addressing misconceptions about the level of control these investment firms have.
+4. Criticism of claims about the extent of influence these companies have.
+5. Emphasis on the regulated nature of these investments and the visibility of their actions.
+6. Pointing out the reasons behind companies releasing ESG reports.
+7. Highlighting the role of mutual funds in retirement investments and decision-making.
+8. Refuting the idea of a conspiracy related to these investment firms.
+9. Providing sources and details to support arguments made in the discussion.
+
+
+ 
+Word Cloud in Conservative Subreddit
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Cluster Analysis in Conservative Subreddit
+Cluster 11
+1. Criticism of investigations into the Biden family and lack of concrete evidence.
+2. Comparison to Trump family actions and accusations of hypocrisy.
+3. Discussion on issues of nepotism and corruption within politics.
+4. Suggestions for stricter ethics rules for politicians and their families.
+5. Skepticism and doubts about the validity and purpose of ongoing investigations.
+6. Concerns about the impact of these political investigations on public opinion and elections.
+
+
+Cluster 1
+1. Discussion on the dangers of promoting authoritarianism and totalitarianism in politics.
+2. Criticism of political figures like DeSantis for adopting extreme ideologies.
+3. Mention of conspiracy theories, particularly related to RFK Jr.
+4. Debate on GOP strategies and extremism.
+5. Historical references to Charles Lindbergh's beliefs and policies.
+6. Concerns about the potential erosion of democracy and American values in politics.
+7. Emphasis on the significance of policy decisions on issues like abortion rights.
+8. Discussion around far-right political movements and candidates.
+9. Critique of the Republican Party's changing ideologies.
+10. Analysis of the LP and the influence of the Mises Caucus within the Libertarian Party.
+
+
+Cluster 2
+1. Discussion comparing the speaking abilities and cognitive sharpness of Biden and Trump.
+2. Debate around the age, physical appearance, and cognitive abilities of political figures.
+3. Critiques of Trump's communication style in comparison to Biden's and other political figures.
+
+
+Cluster 6
+1. Criticism of the two-party system and lack of appealing candidates
+2. Skepticism towards primary processes and potential interference in candidate selections
+3. Comparisons between current candidates and past presidential nominees
+4. Speculation on the impact of Trump's involvement in the upcoming election
+5. Mention of potential third-party or independent candidates as alternatives
+6. Analysis of candidate characteristics, strategies, and public reception
+7. Discussion of voter behavior, party dynamics, and media influence in elections
+8. Calls for reform in election systems, including ranked choice voting and term limits.
+
+
+Cluster 8
+1. The posts discuss the allegations against Rudy Giuliani, including selling pardons, sexual assault, and inappropriate behavior.
+2. There is mention of recordings of interactions with Giuliani and accusations that are shocking and disturbing.
+3. Giuliani's behavior is compared with other political figures who have been involved in corruption or scandal.
+4. The posts express skepticism about the allegations, calling for transparency and questioning the credibility of the accusations.
+5. Some posts mention legal implications of selling pardons and the potential consequences for Giuliani and Trump.
+6. There are references to Borat and the infamous scene involving Giuliani.
+7. The discussion touches on the broader implications of abuse of power, corruption, and the impact on public perception of political figures.
+8. The posts also include warnings about rule violations and bans related to comments on other topics.
+
+
+Cluster 5
+1. Critiques and discussions about the influence and tactics of Donald Trump in the Republican party.
+2. Discussion of public perception towards Trump and his legal issues.
+3. Varying perspectives on the impact of Trump's base and loyalty on his political future.
+4. Noting the deep divide and polarization caused by political figures like Trump.
+5. Criticism of media bias and its role in shaping public opinion on Trump.
+6. Speculation on the behavior and motivations of voters who support Trump despite controversies.
+7. Debate on the divisiveness and influence of party politics on voters' perceptions of leaders.
+8. Reference to Trump's tactics post-presidency and their effect on his public image.
+9. Analysis of the role of independent voters in shaping political outcomes related to Trump.
+
+
+Cluster 9
+1. Discussion about Trump's Cabinet officials not endorsing him for reelection.
+2. Speculation on reasons behind the lack of endorsements, including questioning Trump's judgement in picking his officials.
+3. Controversy surrounding past Cabinet members and their relationships with Trump.
+4. Criticism of Trump's leadership and decision-making abilities.
+5. Mention of political dynamics and potential manipulation behind the scenes.
+
+
+Cluster 4
+1. Discussion about RFK Jr.'s controversial statement regarding COVID-19 being ethnically targeted to spare Jews.
+2. Mention of historical conspiracy theories involving Jewish people.
+3. Criticism of anti-Semitic conspiracy theories.
+4. Analysis of why Jewish people are often targeted in conspiracy theories.
+5. Tangential discussions on other conspiracy theories that incorporate Jewish people.
+6. Comments on specific historical events and stereotypes related to Jewish people.
+7. Dissemination of facts and debunking of conspiracy theories.
+8. Commentary on the societal impact of conspiracy theories and anti-Semitism.
+
+
+Cluster 0
+1. Discussion on legal implications of Trump's actions related to classified documents and implications of his supporters' reactions.
+2. Comparison of different cases against Trump, including the NY business expenses and the Georgia investigation.
+3. Analysis of the potential impact of various legal cases on Trump's political future.
+4. Critique of Trump's behavior and handling of sensitive information post-presidency.
+5. Speculation on Trump's intent and the potential legal consequences.
+
+
+Cluster 3
+1. Discussion on taxing the rich and defining what their fair share is.
+2. Analysis on the current tax system in the US and how different income groups contribute to taxes.
+3. Concerns about raising taxes on the upper middle class and small business owners.
+4. Debate on wealth taxes, estate taxes, and capital gains taxes.
+5. Mention of VAT taxes and other taxation policies from other countries.
+6. Critiques of proposed tax increases by the Biden administration.
+7. References to different income thresholds for taxation and benefits, especially in relation to Social Security.
+8. Points regarding the burden of taxes on different income levels and the challenges of tax policies' economic impacts.
+9. Arguments for and against tax increases on the wealthy, including the effectiveness of trickle-down economics.
+10. Mention of inconsistencies or issues perceived in current tax proposals or calculations.
+
+
+Cluster 10
+1. Discussion of mishandling classified documents by different public figures such as Trump, Biden, and Kushner.
+2. Speculation on potential conflicts of interest and ethical considerations in legal cases involving these public figures.
+3. Comparison between different responses to mishandling of classified information, particularly focusing on intent and cooperation with investigations.
+4. Debate on the legalities and nuances of declassification procedures and whether actions like self-reporting accidents impact legal consequences.
+5. Suggesting connections between financial dealings, loss of CIA agents, and mishandling of classified documents.
+6. Critiquing perceived leniency towards public figures over mishandling of classified information as compared to consequences for military personnel.
+7. Criticism of selective outrage and political motivations in legal cases involving mishandling of classified information.
+8. Concerns about possible intentional actions leading to compromising national security and implications on the handling of classified information.
+9. Discussions on judicial recusal, conflicts of interest, and the impact of past actions on impartiality in legal cases.
+
+
+Cluster 12
+1. Criticism of politicians and their motivations
+2. Frustration with the state of politics and policy
+3. Cynicism towards political discourse and manipulation
+
+
+Cluster 7
+1. Discussion about transferring money in smaller amounts to avoid detection (structuring).
+2. Mention of daily transfer limits at banks.
+3. Reference to wire transfers and the process involved.
+4. Criticism or disbelief regarding the need to transfer money through multiple banks.
+5. Comments on the cost or amounts involved in certain transactions.
+6. Commentary on the financial practices of politicians.
+7. Mention of money laundering as a crime.
+ 
+Personas per Subreddit
+Generating persona for liberal community...
+### Persona for a Typical Liberal Reddit User
+
+#### Basic Demographics
+
+- **Age:** 25-34 years old
+- **Gender:** Male
+- **Location:** Urban area, likely in a progressive state within the United States
+- **Occupation/Educational Background:** College-educated, possibly with a bachelor's degree in Social Sciences, Humanities, or an emerging field related to technology. Works in a role that could be associated with technology, education, or social services.
+
+#### Interests and Hobbies
+
+- **Favorite Subreddits/Topics:** Participates in subreddits such as r/politics, r/science, r/technology, and r/AskHistorians. Shows interest in current events, technology, and social justice issues.
+- **Leisure Activities:** Reading (both fiction and non-fiction with a focus on social and political themes), attending cultural events, and engaging in outdoor activities like hiking or cycling.
+- **Areas of Expertise/Passion:** Passionate about environmental sustainability, social justice, and political advocacy. Likely engages in activities or volunteer work related to these areas.
+
+#### Personality Traits
+
+- **Introvert/Extrovert:** Leans towards introversion but is very vocal and expressive online.
+- **Serious/Humorous:** Has a balance between seriousness and humor. Uses humor as a tool to engage in discussions or to make light of complex situations.
+- **Analytical/Creative:** Highly analytical, especially in discussions involving politics and science, but also appreciates creativity in art, literature, and music.
+- **Agreeable/Confrontational:** Generally agreeable but does not shy away from confrontations, especially on topics they are knowledgeable about or passionate towards.
+- **Optimistic/Pessimistic:** Optimistic about the potential for societal progress but realistically cautious about the challenges that lie ahead.
+
+#### Communication Style
+
+- **Language:** Prefers formal language but can adopt a more casual tone when the situation or topic allows. Makes occasional use of slang, emojis, and acronyms to fit in with the Reddit culture.
+- **Length of Comments:** Tends to write longer, more thoughtful comments on topics of interest, but also participates in shorter exchanges for casual conversations.
+- **Tone:** Informed and respectful, aiming to contribute positively to discussions. Can become passionate or heated in debates on controversial topics.
+
+#### Opinions and Beliefs
+
+- **Political Leaning:** Left-leaning, supportive of progressive policies regarding healthcare, climate change, civil rights, and income inequality.
+- **Religious/Philosophical Views:** May be secular or non-traditional in religious beliefs. Values science, logic, and humanistic principles.
+- **Stance on Controversial Topics:** Supports LGBTQ+ rights, abortion rights, and comprehensive immigration reform. Advocates for science-based policy, especially concerning climate change and public health.
+
+#### Goals and Motivations
+
+- **Aims Through Reddit Activity:** Seeks to stay informed on current events and scientific advancements, engage in meaningful discussions to broaden their perspective, and advocate for social and political causes.
+- **Reasons for Engaging with Specific Communities/Topics:** Driven by a desire to make a positive impact in the world, learn from diverse viewpoints, and connect with like-minded individuals who share their interests and passions.
+
+This persona encapsulates a typical liberal Reddit user based on their observed interactions within the community, reflecting their demographics, interests, personality, communication style, opinions, and motivations for engaging on the platform.
+
+
+Generating persona for moderate community...
+**Persona Profile: Alex Johnson**
+
+- **Basic Demographics**
+  - **Age:** 30 years
+  - **Gender:** Male
+  - **Location:** Minneapolis, MN, USA
+  - **Occupation/Educational Background:** Software Engineer with a Master's degree in Computer Science from the University of Minnesota. Currently working at a medium-sized tech startup focused on developing AI for environmental sustainability.
+
+- **Interests and Hobbies**
+  - **Favorite Subreddits/Topics:** r/programming, r/environment, r/science, and r/books
+  - **Leisure Activities:** Coding personal projects, hiking, reading science fiction and non-fiction books, and playing strategic video games.
+  - **Areas of Expertise/Passion:** Software development with a strong interest in AI and machine learning. Passionate about climate change activism and technology's role in addressing environmental issues.
+
+- **Personality Traits**
+  - **Introvert/Extrovert:** Introverted, but comfortable in online communities.
+  - **Serious/Humorous:** Mostly serious and focused on factual or informative content but appreciates well-timed humor, particularly in the form of witty or nerdy jokes.
+  - **Analytical/Creative:** Highly analytical with a knack for problem-solving but also possesses a creative side, especially in devising innovative solutions in coding.
+  - **Agreeable/Confrontational:** Generally agreeable but does not shy away from debates on topics he's knowledgeable about, especially in terms of technology or environmental issues.
+  - **Optimistic/Pessimistic:** Optimistic about the potential of technology to solve critical global issues but realistic about the challenges ahead.
+
+- **Communication Style**
+  - **Language:** Prefers formal language but adapts to the casual tone of different Reddit communities.
+  - **Use of Slang/Emojis/Acronyms:** Minimal use of slang and emojis; uses acronyms common within specific interests like programming (e.g., AI, ML).
+  - **Length of Comments:** Detailed and thorough, especially when discussing technical topics or providing advice.
+  - **Tone:** Respectful and informative, with occasional light-heartedness in more casual discussions.
+
+- **Opinions and Beliefs**
+  - **Political Leaning:** Progressive, with strong beliefs in climate change action, science-based policy, and social equality.
+  - **Religious/Philosophical Views:** Agnostic, leans towards humanism and the belief in technology and human ingenuity to better society.
+  - **Stance on Controversial Topics:** Pro-science and pro-environment, supports measures for sustainable development and renewable energy. Advocates for net neutrality and data privacy.
+
+- **Goals and Motivations**
+  - **Aims through Reddit Activity:** To stay informed on the latest in technology and environmental issues, share knowledge, seek advice for personal projects, and occasionally unwind with lighter content.
+  - **Reasons for Engaging with Specific Communities/Topics:** Driven by a life-long love for technology, a commitment to environmental activism, and a desire to be part of a community that shares his interests and values. Engages in discussions where he can both contribute and learn, aiming to broaden his understanding and impact within his areas of passion.
+
+
+Generating persona for conservative community...
+### Conservative Reddit User Persona: John Doe
+
+#### Basic Demographics
+- **Age:** 35
+- **Gender:** Male
+- **Location:** Suburban area in the USA, likely in a state with conservative leanings such as Texas or Florida.
+- **Occupation/Educational Background:** College-educated, with a degree in Business or Engineering. Works in a mid-level management role within a tech or manufacturing company.
+
+#### Interests and Hobbies
+- **Favorite Subreddits/Topics:** Engages actively in subreddits like r/Conservative, r/Economics, and r/Guns. Shows interest in political discussions, economic policies, and Second Amendment rights.
+- **Leisure Activities:** Enjoys outdoor activities such as hunting, fishing, and hiking. Participates in local community service and attends church regularly.
+- **Areas of Expertise/Passion:** Passionate about small business advocacy, fiscal conservatism, and educational reform. Spends time researching and discussing tax policies and the impacts of government regulation on entrepreneurship.
+
+#### Personality Traits
+- **Introvert/Extrovert:** Leans towards introversion, preferring small gatherings and deep conversations over large social events.
+- **Serious/Humorous:** Generally serious when discussing issues related to politics and economy but has a dry sense of humor, especially in a comfortable setting with like-minded individuals.
+- **Analytical/Creative:** Highly analytical, especially in topics concerning economics, politics, and technology.
+- **Agreeable/Confrontational:** Tends to be agreeable within his in-group but confrontational when debating with individuals holding opposing views, especially on core belief topics.
+- **Optimistic/Pessimistic:** Optimistic about the future of the country but holds a pessimistic view regarding current political trends and governance.
+
+#### Communication Style
+- **Language:** Prefers formal language but occasionally uses casual language and conservative jargon when in familiar company or expressing strong opinions.
+- **Use of Slang/Emojis/Acronyms:** Minimal use of slang and emojis. Frequently uses acronyms common in political and economic discussions.
+- **Length of Comments:** Comments are typically well-thought-out, medium to long in length, demonstrating a deep understanding of the issues at hand.
+- **Tone:** Assertive and confident in tone, especially when discussing well-informed topics or defending viewpoints.
+
+#### Opinions and Beliefs
+- **Political Leaning:** Strongly conservative with libertarian leanings, especially regarding fiscal policy and government intervention.
+- **Religious/Philosophical Views:** Christian, likely Evangelical or Non-Denominational, with a belief in the importance of traditional values and morals in society.
+- **Stance on Controversial Topics:** Pro-Second Amendment, anti-abortion, skeptical of large government programs, and critical of progressive social movements.
+
+#### Goals and Motivations
+- **Aims Through Reddit Activity:** Seeks to engage in meaningful debates, share information/opinions with like-minded individuals, and stay informed on conservative viewpoints and news.
+- **Reasons for Engaging with Specific Communities/Topics:** Motivated by a desire to defend and promote conservative principles, educate others on fiscal conservatism, and advocate for policies that support individual freedoms and business growth.
+
+### Conclusion
+John Doe represents an archetype of a conservative Reddit user—engaged, informed, and motivated by a desire to participate in the digital discourse surrounding conservative ideology and policies. While specific details may vary between individuals, this persona encapsulates a generalized view of conservative engagement on Reddit.
